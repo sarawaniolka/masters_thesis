@@ -40,5 +40,7 @@ Sounds cool to me but I am not sure if it is doable.
 Other useful sources:  
 https://arxiv.org/pdf/1904.06590.pdf  
 https://towardsdatascience.com/voice-translation-and-audio-style-transfer-with-gans-b63d58f61854  
+https://arxiv.org/abs/1806.04558  
+https://google.github.io/tacotron/publications/speaker_adaptation/  
 
 
