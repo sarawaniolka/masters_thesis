@@ -1,7 +1,7 @@
 # masters_thesis
 
-# language = Julia
-# method = Neural Network
+#### **language** = Julia
+#### **method** = Neural Network
 
 ## Idea 1:  
 Generating a short sample of a song based on provided genre.  
@@ -32,13 +32,13 @@ Classifying a given song to a genre. This is a classification problem instead of
 Problems: large amount of data, some songs belong to multiple genres, so not sure how to address it
 
 ## Idea 3
-Music style / artist transfer. I recently saw a video about it, looked interesting but I am not sure how hard it would be to actually do it. So, I basically saw that someone created an algorithm which was capable of transfering one singer's voice into a song sung by a different artist, e.g. Michael Jackson's Thriller was sung by Lady Gaga and it sounded quite realistic.
-I think it's called a voice transfer. An example is here:
-https://github.com/andabi/deep-voice-conversion
-Two neural networks would be required.
-Sounds cool to me but I am not sure if it is doable.
-Other useful sources:
-https://arxiv.org/pdf/1904.06590.pdf
-https://towardsdatascience.com/voice-translation-and-audio-style-transfer-with-gans-b63d58f61854
+Music style / artist transfer. I recently saw a video about it, looked interesting but I am not sure how hard it would be to actually do it. So, I basically saw that someone created an algorithm which was capable of transfering one singer's voice into a song sung by a different artist, e.g. Michael Jackson's Thriller was sung by Lady Gaga and it sounded quite realistic.  
+I think it's called a voice transfer. An example is here:  
+https://github.com/andabi/deep-voice-conversion  
+Two neural networks would be required.  
+Sounds cool to me but I am not sure if it is doable.  
+Other useful sources:  
+https://arxiv.org/pdf/1904.06590.pdf  
+https://towardsdatascience.com/voice-translation-and-audio-style-transfer-with-gans-b63d58f61854  
 
 
