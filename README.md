@@ -44,3 +44,7 @@ https://arxiv.org/abs/1806.04558
 https://google.github.io/tacotron/publications/speaker_adaptation/  
 
 
+## Idea 4
+Adversarial patches in image recognition. 
+Idk if this could be interesting bc I guess it only works if we know the parameters of the specific model.
+https://youtu.be/MIbFvK2S9g8
