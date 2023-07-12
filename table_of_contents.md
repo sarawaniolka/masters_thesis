@@ -4,19 +4,24 @@
 2. Fundamentals of Image Recognition
 - image classification
 - CNNs
-- challenges in securing image recognition systems
+- common IR algorithms
+- challenges and vulnerabilities in securing image recognition systems
 3. Adversarial Attacks on Image Recognition
-- Overview of adversarial attacks
-- Threat models and attack goals
-- Taxonomy of adversarial attacks
-- Attack methods and techniques
-- Evaluation metrics for assessing attacks
+- Overview
+- White Box Attacks
+    - FGSM
+    - Optimisation based attacks
+    - Regularized Intermediate Layers Attack
+- Black box attacks
+    - Zeroth Order Optimization Attacks
+    - Transferability attacks
+- Other AA
+    - Adversarial Patches
+    - IFGSM
+    - CW
+    - Random noise
 4. Generating Adversarial Examples (code in Julia)
-- Fast Gradient Sign Method (FGSM)
-- Projected Gradient Descent (PGD)
-- Optimization-based attacks
-- Transferability and universal perturbations
 5. Defense mechanisms against adversarial examples
 - Robustness assessment of image recognition models
-- Defensive distillation and model ensembling
+- Adversarial training
 - Successful defense mechanisms in real-world scenarios
