@@ -3,11 +3,12 @@
 module model_mod
 
     using Flux
+    using Images
     using Flux: onecold, params, gradient, Ref
     using DataAugmentation
     using Metalhead
 
-    export DATA_MEAN, DATA_STD, load_image, preprocess_image, get_labels, get_model, get_true_label, loss, model_parameters
+    export DATA_MEAN, DATA_STD, load_image, preprocess_image, get_labels, get_model, get_true_label, loss, model_parameters, custom_loss, resize_image;
 
     # Stats derived from the statistics of the ImageNet dataset
     const DATA_MEAN = (0.485, 0.456, 0.406)
@@ -18,11 +19,13 @@ module model_mod
         return Flux.Data.ImageDataset(image_path)
     end
 
-    # Preprocess the image: CenterCrop, convert to tensor, and normalize
-    function preprocess_image(image, crop_size=(224, 224))
-        #augmentations = CenterCrop(crop_size)
-        #cropped_img = apply(augmentations, Image(image)) |> itemdata
-        normalized_data =  apply(ImageToTensor() |> Normalize(DATA_MEAN, DATA_STD), Image(image)) |> itemdata
+    function resize_image(image)
+        resized_image = Images.imresize(image, (224, 224), center=true)  # Resize and center the image
+    end
+
+    # Preprocess the image: convert to tensor, and normalize
+    function preprocess_image(image)
+        normalized_data = apply(ImageToTensor() |> Normalize(DATA_MEAN, DATA_STD), Image(image)) |> itemdata
         return normalized_data
     end
         
@@ -34,7 +37,7 @@ module model_mod
 
     # Load the model
     function get_model()
-        return ResNet(34; pretrain = true)
+        return ResNet(50; pretrain = true)
     end
 
     # Find the true label index
@@ -48,4 +51,14 @@ module model_mod
         return Flux.params(model)
     end
 
+    function predict(image)
+        preprocessed_image = preprocess_image(image)
+        labels = get_labels()
+        model = get_model()
+        target_prediction = Flux.onecold(Flux.softmax(model(Flux.unsqueeze(preprocessed_image, 4))), labels)
+        true_label_index = get_true_label(labels, target_prediction)
+        prediction = target_prediction[1]
+        println("Prediction: ")
+        return prediction, true_label_index
+    end
 end # module

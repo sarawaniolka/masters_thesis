@@ -7,12 +7,12 @@ module FGSM_mod
     
     import .model_mod
 
-    export FGSM, FGSM_preprocess, visualise_FGSM;
+    export FGSM, FGSM_preprocess, visualise_FGSM, FGSM_attack;
 
     model = model_mod.get_model();
 
     # Define the loss function (e.g., cross-entropy)
-    function loss(x, y)
+    function custom_loss(x, y)
         return Flux.crossentropy(Flux.softmax(model(x)), y)
     end
 
@@ -35,8 +35,14 @@ module FGSM_mod
     end
     
     function visualise_FGSM(adv_x)
-        reshaped_adv_x = reshape(adv_x, 3, 429, 497)
+        reshaped_adv_x = reshape(adv_x, 3, 224, 224)
         a = colorview(RGB, reshaped_adv_x)
         save("FGSM_attack.jpg", a)
+    end
+
+    function FGSM_attack(img, true_label_index, ϵ)
+        preprocessed_image = FGSM_preprocess(img)
+        adv_x, perturbation = FGSM(custom_loss, preprocessed_image, true_label_index, ϵ)
+        visualise_FGSM(adv_x)
     end
 end
