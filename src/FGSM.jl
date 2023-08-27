@@ -40,41 +40,55 @@ module FGSM_mod
         save("FGSM_attack.jpg", a)
     end
 
-    function FGSM_attack(img, epsilon_range)
-        preprocessed_image = FGSM_preprocess(img);
-        lower_bound, upper_bound = epsilon_range;
-        preprocessed_model = model_mod.preprocess_image(img);
-
-        true_label = model_mod.predict(preprocessed_model);
-        epsilon = (lower_bound + upper_bound) / 2.0;  # Initialize epsilon before the loop
+    function FGSM_attack(img, epsilon_range, max_iterations = 10, batch_size = 5)
+        preprocessed_model = model_mod.preprocess_image(img)
+        normalized_model = model_mod.normalize_tensor(preprocessed_model)
+        true_label = model_mod.predict(normalized_model)
         
-        while abs(upper_bound - lower_bound) > 1e-5;
-            adv_x, _ = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon);
-            adv_x = reshape(adv_x, 224, 224, 3);
-            adv_label = model_mod.predict(adv_x);
-            if adv_label != true_label
-                upper_bound = epsilon
-            else
-                lower_bound = epsilon
+        preprocessed_image = FGSM_preprocess(img)
+        
+        lower_bound, upper_bound = epsilon_range
+        step_size = (upper_bound - lower_bound) / max_iterations
+        
+        adv_x, _ = FGSM(custom_loss, preprocessed_image, true_label[2], lower_bound)
+        adv_x = model_mod.normalize_tensor(reshape(adv_x, 224, 224, 3))
+        
+        for iteration in 1:max_iterations
+            epsilon = lower_bound + step_size * iteration
+            
+            batch_adv_x = similar(adv_x, batch_size)
+            for i in 1:batch_size
+                batch_adv_x[i], _ = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon)
             end
             
-            epsilon = (lower_bound + upper_bound) / 2.0  # Update epsilon within the loop
+            batch_adv_x = model_mod.normalize_tensor(reshape(batch_adv_x, 224, 224, 3, batch_size))
+            
+            for i in 1:batch_size
+                adv_label = model_mod.predict(batch_adv_x[:, :, :, :, i])
+                
+                if adv_label != true_label
+                    adv_x = batch_adv_x[:, :, :, :, i]
+                    break
+                end
+            end
+            
+            if adv_label != true_label
+                break
+            end
         end
         
-        final_adv_x, _ = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon);
-        f_adv_x = reshape(final_adv_x, 224, 224, 3);
-        final_adv_label = model_mod.predict(f_adv_x);
-       
-       
+        final_adv_x = model_mod.normalize_tensor(reshape(adv_x, 224, 224, 3))
+        final_adv_label = model_mod.predict(final_adv_x)
+        
         if final_adv_label != true_label
-            visualise_FGSM(f_adv_x)
+            visualise_FGSM(final_adv_x)
         else
             println("It's impossible to find an epsilon value that leads to misclassification.")
         end
-        return f_adv_x
+        
+        return final_adv_x
     end
-    
-    
+      
     
     
     

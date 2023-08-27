@@ -14,9 +14,11 @@ module onepix_mod
     function perturb_image(img, pixel)
         perturbed_image = copy(img)
         perturbed_image[pixel...] = 1.0
+        one_pixel_data = reshape(perturbed_image, 224, 224, 3)
         a = reshape(perturbed_image, 3, 224, 224)
         b = colorview(RGB, a)
         save("one_pixel_attack.jpg", b)
+        return one_pixel_data
     end
 
     function one_pixel_attack(img)
@@ -28,7 +30,8 @@ module onepix_mod
         println("Randomized Initial Pixel: $initial_pixel")
         
         preprocessed_image = FGSM_mod.FGSM_preprocess(img)
-        perturb_image(preprocessed_image, initial_pixel)
+        a = perturb_image(preprocessed_image, initial_pixel)
+        return a
     end
     
 end

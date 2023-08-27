@@ -25,7 +25,12 @@ module model_mod
 
     # Preprocess the image: convert to tensor, and normalize
     function preprocess_image(image)
-        normalized_data = apply(ImageToTensor() |> Normalize(DATA_MEAN, DATA_STD), Image(image)) |> itemdata
+        to_tensor = apply(ImageToTensor(), Image(image))
+        return to_tensor
+    end
+
+    function normalize_tensor(tensor)
+        normalized_data = apply(Normalize(DATA_MEAN, DATA_STD), tensor) |> itemdata
         return normalized_data
     end
         
