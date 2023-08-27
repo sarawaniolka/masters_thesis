@@ -37,7 +37,7 @@ module FGSM_mod
     function visualise_FGSM(adv_x)
         reshaped_adv_x = reshape(adv_x, 3, 224, 224)
         a = colorview(RGB, reshaped_adv_x)
-        save("FGSM_attack.jpg", a)
+        save("masters_thesis/FGSM_attack.jpg", a)
     end
 
     function FGSM_attack(img, true_label_index, ϵ)
@@ -46,3 +46,4 @@ module FGSM_mod
         visualise_FGSM(adv_x)
     end
 end
+

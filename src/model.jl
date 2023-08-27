@@ -55,13 +55,12 @@ module model_mod
     end
 
     function predict(image)
-        preprocessed_image = normalize_tensor!(image)
+        #preprocessed_image = normalize_tensor!(image)
         labels = get_labels()
         model = get_model()
-        target_prediction = Flux.onecold(Flux.softmax(model(Flux.unsqueeze(preprocessed_image, 4))), labels)
+        target_prediction = Flux.onecold(Flux.softmax(model(Flux.unsqueeze(image, 4))), labels)
         true_label_index = get_true_label(labels, target_prediction)
         prediction = target_prediction[1]
-        println("Prediction: ")
         return prediction, true_label_index
     end
 end 
