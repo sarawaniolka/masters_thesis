@@ -1,5 +1,3 @@
-# model.jl
-
 module model_mod
 
     using Flux
@@ -23,16 +21,16 @@ module model_mod
         resized_image = Images.imresize(image, (224, 224), center=true)  # Resize and center the image
     end
 
-    # Preprocess the image: convert to tensor, and normalize
     function preprocess_image(image)
         to_tensor = apply(ImageToTensor(), Image(image))
         return to_tensor
     end
 
-    function normalize_tensor(tensor)
+    # Preprocess the image: convert to tensor, and normalize
+    function normalize_tensor!(tensor)
         normalized_data = apply(Normalize(DATA_MEAN, DATA_STD), tensor) |> itemdata
-        return normalized_data
     end
+    
         
     # Load ImageNet labels
     function get_labels()
@@ -57,11 +55,13 @@ module model_mod
     end
 
     function predict(image)
-        labels = get_labels();
-        model = get_model();
-        target_prediction = Flux.onecold(Flux.softmax(model(Flux.unsqueeze(image, 4))), labels);
-        true_label_index = get_true_label(labels, target_prediction);
-        prediction = target_prediction[1];
-        return prediction, true_label_index;
+        preprocessed_image = normalize_tensor!(image)
+        labels = get_labels()
+        model = get_model()
+        target_prediction = Flux.onecold(Flux.softmax(model(Flux.unsqueeze(preprocessed_image, 4))), labels)
+        true_label_index = get_true_label(labels, target_prediction)
+        prediction = target_prediction[1]
+        println("Prediction: ")
+        return prediction, true_label_index
     end
-end # module
+end 
