@@ -34,10 +34,13 @@ module FGSM_mod
         return image
     end
     
-    function visualise_FGSM(adv_x)
+    function visualise_FGSM(adv_x, noise)
         reshaped_adv_x = reshape(adv_x, 3, 224, 224)
         a = colorview(RGB, reshaped_adv_x)
+        n_reshaped = reshape(noise, 3, 224, 224)
+        n = colorview(RGB, n_reshaped)
         save("FGSM_attack.jpg", a)
+        save("FGSM_noise.jpg", n)
     end
 
     function FGSM_attack(img, epsilon_range)
@@ -61,13 +64,13 @@ module FGSM_mod
             epsilon = (lower_bound + upper_bound) / 2.0  # Update epsilon within the loop
         end
         
-        final_adv_x, _ = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon);
+        final_adv_x, noise = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon);
         f_adv_x = reshape(final_adv_x, 224, 224, 3);
         final_adv_label = model_mod.predict(f_adv_x);
        
        
         if final_adv_label != true_label
-            visualise_FGSM(f_adv_x)
+            visualise_FGSM(f_adv_x, noise)
         else
             println("It's impossible to find an epsilon value that leads to misclassification.")
         end

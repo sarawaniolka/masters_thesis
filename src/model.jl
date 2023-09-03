@@ -59,4 +59,5 @@ module model_mod
         prediction = target_prediction[1];
         return prediction, true_label_index;
     end
+
 end # module
