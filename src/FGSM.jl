@@ -13,7 +13,7 @@ module FGSM_mod
 
     # Define the loss function (e.g., cross-entropy)
     function custom_loss(x, y)
-        return Flux.crossentropy(Flux.softmax(model(x)), y)
+        return Flux.crossentropy(Flux.softmax(model(Flux.unsqueeze(x, 4))), y)
     end
 
 
@@ -21,34 +21,37 @@ module FGSM_mod
     function FGSM(loss, x, y, ϵ)
         grads = gradient(() -> loss(x, y), params([x]))
         peturbation = Float32(ϵ) * sign.(grads[x])
-        x_adv = clamp.(x + Float32(ϵ) * sign.(grads[x]), 0, 1)
+        x_adv = x + Float32(ϵ) * sign.(grads[x])
         noise = peturbation .+ 0.5
-        return x_adv, noise
-    end
-    
-    function FGSM_preprocess(original_image)
-        img_array = channelview(original_image)
-        img_array .= (img_array .- minimum(img_array)) / (maximum(img_array) - minimum(img_array))
-        channels, height, width = size(img_array)
-        image = reshape(img_array, (width, height, channels, 1))
-        return image
+        return x_adv, noise, ϵ
     end
     
     function visualise_FGSM(adv_x, noise)
-        reshaped_adv_x = reshape(adv_x, 3, 224, 224)
-        a = colorview(RGB, reshaped_adv_x)
-        n_reshaped = reshape(noise, 3, 224, 224)
+        reshaped_adv_x = permutedims(adv_x, [3, 1, 2])
+
+        # Normalize the pixel values to the [0, 1] range
+        min_val = minimum(reshaped_adv_x)
+        max_val = maximum(reshaped_adv_x)
+        image_data = (reshaped_adv_x .- min_val) / (max_val - min_val)
+
+        # Create an image from the normalized data
+        img = colorview(RGB, image_data)
+
+        n_reshaped = permutedims(noise, [3, 1, 2])
+        min_val = minimum(n_reshaped)
+        max_val = maximum(n_reshaped)
+        image_data = (n_reshaped .- min_val) / (max_val - min_val)
         n = colorview(RGB, n_reshaped)
-        save("FGSM_attack.jpg", a)
+
+        save("FGSM_attack.jpg", img)
         save("FGSM_noise.jpg", n)
     end
 
     function FGSM_attack(img, epsilon_range)
-        preprocessed_image = FGSM_preprocess(img);
+        preprocessed_image = model_mod.preprocess_image(img);
         lower_bound, upper_bound = epsilon_range;
-        preprocessed_model = model_mod.preprocess_image(img);
 
-        true_label = model_mod.predict(preprocessed_model);
+        true_label = model_mod.predict(preprocessed_image);
         epsilon = (lower_bound + upper_bound) / 2.0;  # Initialize epsilon before the loop
         
         while abs(upper_bound - lower_bound) > 1e-5;
@@ -64,17 +67,17 @@ module FGSM_mod
             epsilon = (lower_bound + upper_bound) / 2.0  # Update epsilon within the loop
         end
         
-        final_adv_x, noise = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon);
+        final_adv_x, noise, epsilon = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon);
         f_adv_x = reshape(final_adv_x, 224, 224, 3);
         final_adv_label = model_mod.predict(f_adv_x);
        
        
         if final_adv_label != true_label
-            visualise_FGSM(f_adv_x, noise)
+            visualise_FGSM(final_adv_x, noise)
         else
             println("It's impossible to find an epsilon value that leads to misclassification.")
         end
-        return f_adv_x
+        return f_adv_x, epsilon
     end
     
     

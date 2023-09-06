@@ -24,20 +24,21 @@ save("original_image.jpg", original_img)
 original_prediction = model_mod.predict(preprocessed_image);
 println("Original prediction: ", original_prediction)
 
-# FGSM attack with binary search used for optimizing epsilon
-epsilon_range = (0.0, 0.4);  # Specify the initial range for epsilon search
-FGSM_data = FGSM_mod.FGSM_attack(original_img, epsilon_range);
+epsilon_range = (0.0, 1);  # Specify the initial range for epsilon search
+FGSM_data, epsilon = FGSM_mod.FGSM_attack(original_img, epsilon_range);
 FGSM_prediction = model_mod.predict(FGSM_data);
 println("Prediciton after FGSM attack: ", FGSM_prediction)
+println("Chosen epsilon: ", epsilon)
 
 # CW attack
-adv = CW_mod.cw_attack(original_img, 282, 0.1, 5);
+adv = CW_mod.cw_attack(original_img, 282, 0.1, 10);
 CW_prediction = model_mod.predict(adv[1]);
 println("Prediciton after CW attack: ", CW_prediction)
 
 # Randomized Initial Pixel: (151, 165, 3, 1)
 #Prediction: 
 #("Egyptian cat", 286)
+
 onepix_mod.one_pixel_attack(original_img);
 onepix_image = Images.load("one_pixel_attack.jpg");
 # TO DO
