@@ -80,7 +80,7 @@ module CW_mod
     
             println("Iteration: $iteration, Loss: $loss, Adversarial Label: $(adv_label[2])")
     
-            if adv_label[2] != target_class
+            if adv_label[2] != target_class && adv_label[2] != 286 && adv_label[2] != 283
                 visualise_CW(adv_example, delta, "final")  # Save the final visualization
                 return adv_example, delta
             end
@@ -109,8 +109,8 @@ module CW_mod
         n = colorview(RGB, n_reshaped)
     
         # Save the visualization with an iteration number or "final" for the final image
-        filename = iteration == "final" ? "CW_attack_final.jpg" : "attacks_visualised/CW/CW_attack_$iteration.jpg"
+        filename = iteration == "final" ? "CW_attack_final.jpg" : "masters_thesis/attacks_visualised/CW/CW_attack_$iteration.jpg"
         save(filename, img)
-        save("attacks_visualised/CW/CW_noise_$iteration.jpg", n)
+        save("masters_thesis/attacks_visualised/CW/CW_noise_$iteration.jpg", n)
     end
 end

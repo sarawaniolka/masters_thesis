@@ -44,7 +44,7 @@ module FGSM_mod
         n = colorview(RGB, n_reshaped)
 
         save("attacks_visualised/FGSM_attack.jpg", img)
-        save("FGSM_noise.jpg", n)
+        save("attacks_visualised/FGSM_noise.jpg", n)
     end
 
     function FGSM_attack(img, epsilon_range)
