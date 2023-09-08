@@ -109,8 +109,8 @@ module CW_mod
         n = colorview(RGB, n_reshaped)
     
         # Save the visualization with an iteration number or "final" for the final image
-        filename = iteration == "final" ? "CW_attack_final.jpg" : "visualizations_CW/CW_attack_$iteration.jpg"
+        filename = iteration == "final" ? "CW_attack_final.jpg" : "attacks_visualised/CW/CW_attack_$iteration.jpg"
         save(filename, img)
-        save("visualizations_CW/CW_noise_$iteration.jpg", n)
+        save("attacks_visualised/CW/CW_noise_$iteration.jpg", n)
     end
 end

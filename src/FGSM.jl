@@ -43,7 +43,7 @@ module FGSM_mod
         image_data = (n_reshaped .- min_val) / (max_val - min_val)
         n = colorview(RGB, n_reshaped)
 
-        save("FGSM_attack.jpg", img)
+        save("attacks_visualised/FGSM_attack.jpg", img)
         save("FGSM_noise.jpg", n)
     end
 

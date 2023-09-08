@@ -22,7 +22,7 @@ module onepix_mod
         reshaped_adv_x = permutedims(img, [3, 1, 2])
         # Create an image from the normalized data
         img = colorview(RGB, reshaped_adv_x)
-        save("one_pixel_attack_$iteration.jpg", img)
+        save("attacks_visualised/one_pixel_attack_$iteration.jpg", img)
     end
 
     function one_pixel_attack(img, max_iterations, num_pixels_to_change)
