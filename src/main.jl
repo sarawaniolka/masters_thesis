@@ -31,15 +31,16 @@ println("Prediciton after FGSM attack: ", FGSM_prediction)
 println("Chosen epsilon: ", epsilon)
 
 # CW attack
-adv = CW_mod.cw_attack(original_img, 282, 0.5, 0.9, 50);
-CW_prediction = model_mod.predict(adv);
+adv = CW_mod.CW_attack(original_img, 282, 1.0, 0.1, 100);
+CW_prediction = model_mod.predict(adv[1]);
 println("Prediciton after CW attack: ", CW_prediction)
 
 # Randomized Initial Pixel: (151, 165, 3, 1)
 #Prediction: 
 #("Egyptian cat", 286)
 
-onepix_image, pixels= onepix_mod.one_pixel_attack(original_img, 100, 1000);
+onepix_image, pixels= onepix_mod.one_pixel_attack(original_img, 100, 800);
 one_pixel_prediction = model_mod.predict(onepix_image)
+# "washbasin"
 println(pixels)
 println("Prediciton after pixel attack: ", one_pixel_prediction)
