@@ -13,13 +13,13 @@ using .onepix_mod
 using .CW_mod
 
 # Load the image
-image_path = "masters_thesis/original_photo.jpg"
+image_path = "original_photo.jpg"
 original_image = Images.load(image_path);
 
 # Preprocess the image
 original_img = model_mod.resize_image(original_image)
 preprocessed_image = model_mod.preprocess_image(original_img);
-save("/masters_thesis/original_image.jpg", original_img);  # Save the resized original image
+save("original_image.jpg", original_img);  # Save the resized original image
 
 # Original prediction
 original_prediction = model_mod.predict(preprocessed_image);
