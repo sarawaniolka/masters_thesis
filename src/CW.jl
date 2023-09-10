@@ -1,18 +1,21 @@
+# CW_mod.jl
+
 module CW_mod
     using Images
     using Colors
     using Flux
     using Flux: params, update!, Optimise, setup, onehotbatch, logitcrossentropy
-    include("model.jl")
-    include("one_pixel.jl")
+    include("model.jl")  # Import the model module for model-related functionality
+    include("one_pixel.jl")  # Import the onepix_mod module for normalization and pixel manipulation
     using .onepix_mod
 
-    import .model_mod
+    import .model_mod  # Import functions from the model module
     export CW_attack
 
     # Precompute the model once outside the loss function to avoid redundant computations
     model = model_mod.get_model()
 
+    # Define the CW (Carlini-Wagner) loss function
     function cw_loss(delta, x, t, c, λ)
         # Compute logits for the original input
         original_logits = model(Flux.unsqueeze(x, 4))
@@ -36,6 +39,7 @@ module CW_mod
         return loss
     end
 
+    # Perform the CW attack on an input image
     function CW_attack(image, target_class, c, δ, max_iterations, λ)
     
         # Initialize the perturbation with random values
@@ -91,6 +95,7 @@ module CW_mod
         return adversarial_example, delta
     end
     
+    # Visualize the CW attack and noise
     function visualise_CW(adv_x, noise, iteration)
         reshaped_adv_x = permutedims(adv_x, [3, 1, 2])
     
@@ -109,8 +114,8 @@ module CW_mod
         n = colorview(RGB, n_reshaped)
     
         # Save the visualization with an iteration number or "final" for the final image
-        filename = iteration == "final" ? "CW_attack_final.jpg" : "masters_thesis/attacks_visualised/CW/CW_attack_$iteration.jpg"
+        filename = iteration == "final" ? "CW_attack_final.jpg" : "attacks_visualised/CW/CW_attack_$iteration.jpg"
         save(filename, img)
-        save("masters_thesis/attacks_visualised/CW/CW_noise_$iteration.jpg", n)
+        save("attacks_visualised/CW/CW_noise_$iteration.jpg", n)
     end
 end

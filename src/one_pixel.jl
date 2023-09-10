@@ -1,23 +1,25 @@
+# onepix_mod.jl
+
 module onepix_mod
     using Flux
     using Images
     using Random
 
-    include("model.jl")
-    include("FGSM.jl")
-    import .model_mod
+    include("model.jl")  # Import the model module for model-related functionality
+    include("FGSM.jl")  # Import the FGSM_mod module
+    import .model_mod  # Import functions from the model module
     import .FGSM_mod
 
-
+    # Normalize pixel data to the (0, 1) range
     function normalize_data(img)
-        # Scale the pixel values to the (0,1) range
+        # Scale the pixel values to the (0, 1) range
         min_val = minimum(img)
         max_val = maximum(img)
         pixel_data = (img .- min_val) / (max_val - min_val)
         return pixel_data
     end
 
-
+    # Visualize an image and save it
     function visualise_image(img, iteration)
         reshaped_adv_x = permutedims(img, [3, 1, 2])
         # Create an image from the normalized data
@@ -25,10 +27,11 @@ module onepix_mod
         save("attacks_visualised/one_pixel_attack_$iteration.jpg", img)
     end
 
+    # Perform a one-pixel attack on an input image
     function one_pixel_attack(img, max_iterations, num_pixels_to_change)
-        preprocessed_image = model_mod.preprocess_image(img);
+        preprocessed_image = model_mod.preprocess_image(img)
         p = onepix_mod.normalize_data(preprocessed_image)
-        original_prediction = model_mod.predict(p);
+        original_prediction = model_mod.predict(p)
 
         for i in 1:max_iterations
             pixels = select_pixels(num_pixels_to_change)
@@ -50,12 +53,10 @@ module onepix_mod
         end
         return preprocessed_image
     end
-    
-    
 
+    # Select random pixels for the one-pixel attack
     function select_pixels(num_pixels)
         pixels = [(rand(1:224), rand(1:224), rand(1:3)) for _ in 1:num_pixels]
         return pixels
     end
-    
 end

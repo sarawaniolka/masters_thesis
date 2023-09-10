@@ -1,23 +1,24 @@
+# FGSM_mod.jl
+
 module FGSM_mod
     using Images
     using Colors
     using Flux
     using Flux: params
-    include("model.jl")
-    
-    import .model_mod
+    include("model.jl")  # Import the model module for model-related functionality
+
+    import .model_mod  # Import functions from the model module
 
     export FGSM, FGSM_preprocess, visualise_FGSM, FGSM_attack;
 
-    model = model_mod.get_model();
+    model = model_mod.get_model();  # Load a pre-trained model from the model module
 
-    # Define the loss function (e.g., cross-entropy)
+    # Define a custom loss function for the FGSM attack
     function custom_loss(x, y)
         return Flux.crossentropy(Flux.softmax(model(Flux.unsqueeze(x, 4))), y)
     end
 
-
-    # Define the FGSM function
+    # Define the Fast Gradient Sign Method (FGSM) attack function
     function FGSM(loss, x, y, ϵ)
         grads = gradient(() -> loss(x, y), params([x]))
         peturbation = Float32(ϵ) * sign.(grads[x])
@@ -25,7 +26,8 @@ module FGSM_mod
         noise = peturbation .+ 0.5
         return x_adv, noise, ϵ
     end
-    
+
+    # Visualize the FGSM attack and noise
     function visualise_FGSM(adv_x, noise)
         reshaped_adv_x = permutedims(adv_x, [3, 1, 2])
 
@@ -43,21 +45,23 @@ module FGSM_mod
         image_data = (n_reshaped .- min_val) / (max_val - min_val)
         n = colorview(RGB, n_reshaped)
 
+        # Save the visualizations to files
         save("attacks_visualised/FGSM_attack.jpg", img)
         save("attacks_visualised/FGSM_noise.jpg", n)
     end
 
+    # Perform the FGSM attack on an input image
     function FGSM_attack(img, epsilon_range)
-        preprocessed_image = model_mod.preprocess_image(img);
-        lower_bound, upper_bound = epsilon_range;
+        preprocessed_image = model_mod.preprocess_image(img)
+        lower_bound, upper_bound = epsilon_range
 
-        true_label = model_mod.predict(preprocessed_image);
-        epsilon = (lower_bound + upper_bound) / 2.0;  # Initialize epsilon before the loop
+        true_label = model_mod.predict(preprocessed_image)
+        epsilon = (lower_bound + upper_bound) / 2.0  # Initialize epsilon before the loop
         
-        while abs(upper_bound - lower_bound) > 1e-5;
-            adv_x, _ = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon);
-            adv_x = reshape(adv_x, 224, 224, 3);
-            adv_label = model_mod.predict(adv_x);
+        while abs(upper_bound - lower_bound) > 1e-5
+            adv_x, _ = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon)
+            adv_x = reshape(adv_x, 224, 224, 3)
+            adv_label = model_mod.predict(adv_x)
             if adv_label != true_label
                 upper_bound = epsilon
             else
@@ -67,21 +71,17 @@ module FGSM_mod
             epsilon = (lower_bound + upper_bound) / 2.0  # Update epsilon within the loop
         end
         
-        final_adv_x, noise, epsilon = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon);
-        f_adv_x = reshape(final_adv_x, 224, 224, 3);
-        final_adv_label = model_mod.predict(f_adv_x);
+        final_adv_x, noise, epsilon = FGSM(custom_loss, preprocessed_image, true_label[2], epsilon)
+        f_adv_x = reshape(final_adv_x, 224, 224, 3)
+        final_adv_label = model_mod.predict(f_adv_x)
        
-       
+        # Visualize the attack if it succeeded, else print a message
         if final_adv_label != true_label
             visualise_FGSM(final_adv_x, noise)
         else
             println("It's impossible to find an epsilon value that leads to misclassification.")
         end
+        
         return f_adv_x, epsilon
     end
-    
-    
-    
-    
-    
 end
